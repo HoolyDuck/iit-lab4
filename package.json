@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prettify": "prettier --write *.html *.css"
+    "prettify": "prettier --write *.html *.css",
+    "prettier:check": "prettier --check *.html *.css"
   },
   "dependencies": {
     "prettier": "^3.2.5"
