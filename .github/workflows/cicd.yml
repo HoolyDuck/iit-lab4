@@ -52,6 +52,7 @@ jobs:
       TF_VAR_aws_secret_key: ${{ secrets.AWS_PRIVATE_KEY }}
 
     steps:
+    - uses: actions/checkout@v4
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v2
       with:
