@@ -45,16 +45,75 @@ variable "ami" {
   sensitive = true
 }
 
+variable "docker_compose_content" {
+    type = string
+    default =  <<EOF
+version: "3"
+services:
+  cavo:
+    image: danyloberk/lab45
+    ports:
+      - "80:80"
+  watchtower:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 20
+EOF
+}
+
+resource "aws_security_group" "group" {
+  name_prefix = "group"
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
 resource "aws_instance" "iit6" {
   ami           = var.ami
   instance_type = "t3.micro"
   key_name = aws_key_pair.key_pair.key_name
+    vpc_security_group_ids = [
+    aws_security_group.example.id,
+  ]
 
   # User data
   user_data = <<-EOF
-  #!/bin/bash
-  echo "This script was executed from user_data"
-  EOF
+              #!/bin/bash
+              yum install -y docker
+              systemctl enable docker
+              systemctl start docker
+              sudo chown $USER /var/run/docker.sock
+              cat > ./docker-compose.yml <<-TEMPLATE
+              ${var.docker_compose_content}
+              TEMPLATE
+              docker run -p 80:80 -d nginx
+              EOF
 
   tags = {
     Name = "IIT_lab_6"
