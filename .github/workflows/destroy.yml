@@ -26,9 +26,6 @@ jobs:
     - name: Terraform init and destroy
       run: |
         echo `pwd`
-
-        echo "** Running Terraform Init**"
-        terraform init
       
         echo "** Running Terraform Destroy**"
         terraform destroy -auto-approve
