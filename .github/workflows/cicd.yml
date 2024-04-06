@@ -77,7 +77,7 @@ jobs:
         terraform validate
 
         echo "** Running Terraform Plan**"
-        terraform import aws_key_pair.personal connection_key
+        terraform import aws_key_pair.key_pair connection_key
         terraform plan
         
         echo "** Running Terraform Apply**"
