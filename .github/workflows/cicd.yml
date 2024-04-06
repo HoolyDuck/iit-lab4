@@ -77,3 +77,4 @@ jobs:
         
         echo "** Running Terraform Apply**"
         terraform apply -auto-approve
+      working-directory: "/"
