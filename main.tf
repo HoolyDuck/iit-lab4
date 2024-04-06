@@ -7,6 +7,29 @@ terraform {
   }
 }
 
+resource "aws_vpc" "prod" {
+  cidr_block = "10.0.0.0/16"
+  enable_dns_hostnames = true
+}
+
+resource "aws_internet_gateway" "prod" {
+  vpc_id = aws_vpc.prod.id
+}
+
+resource "aws_route" "prod__to_internet" {
+  route_table_id = aws_vpc.prod.main_route_table_id
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id = aws_internet_gateway.prod.id
+}
+
+resource "aws_subnet" "prod" {
+  vpc_id = aws_vpc.prod.id
+  availability_zone = "us-east-1a"
+  cidr_block = "10.0.0.0/18"
+  map_public_ip_on_launch = true
+  depends_on = [aws_internet_gateway.prod]
+}
+
 variable "aws_access_key" {
   type      = string
   sensitive = true
@@ -101,6 +124,8 @@ resource "aws_instance" "iit6" {
     vpc_security_group_ids = [
     aws_security_group.group.id,
   ]
+  subnet_id = aws_subnet.prod.id
+  availability_zone = aws_subnet.prod.availability_zone
 
   # User data
   user_data = <<-EOF
@@ -112,7 +137,7 @@ resource "aws_instance" "iit6" {
               cat > ./docker-compose.yml <<-TEMPLATE
               ${var.docker_compose_content}
               TEMPLATE
-              docker run -p 80:80 -d nginx
+              docker compose up
               EOF
 
   tags = {
