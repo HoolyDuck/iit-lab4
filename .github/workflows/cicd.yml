@@ -69,11 +69,11 @@ jobs:
     - name: Terraform destroy, init, plan and apply
       run: |
         echo `pwd`
-        echo "** Running Terraform Destroy**"
-        terraform destroy -auto-approve
-
         echo "** Running Terraform Init**"
         terraform init
+        
+        echo "** Running Terraform Destroy**"
+        terraform destroy -auto-approve
 
         echo "** Running Terraform Validate**"
         terraform validate
