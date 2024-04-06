@@ -99,7 +99,7 @@ resource "aws_instance" "iit6" {
   instance_type = "t3.micro"
   key_name = aws_key_pair.key_pair.key_name
     vpc_security_group_ids = [
-    aws_security_group.example.id,
+    aws_security_group.group.id,
   ]
 
   # User data
