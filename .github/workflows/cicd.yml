@@ -66,9 +66,11 @@ jobs:
     - name: Setup Terraform CLI
       uses: hashicorp/setup-terraform@v2.0.2
 
-    - name: Terraform init, plan and apply
+    - name: Terraform destroy, init, plan and apply
       run: |
         echo `pwd`
+        echo "** Running Terraform Destroy**"
+        terraform destroy -auto-approve
 
         echo "** Running Terraform Init**"
         terraform init
