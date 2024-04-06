@@ -50,6 +50,9 @@ jobs:
       TF_VAR_ami: ${{ secrets.AMI }}
       TF_VAR_aws_access_key: ${{ secrets.AWS_ACCESS_KEY }}
       TF_VAR_aws_secret_key: ${{ secrets.AWS_PRIVATE_KEY }}
+    defaults:
+      run:
+        working-directory: ./
 
     steps:
     - name: Checkout
