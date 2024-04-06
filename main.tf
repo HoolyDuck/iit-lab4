@@ -102,7 +102,7 @@ resource "aws_instance" "iit6" {
     aws_security_group.group.id,
   ]
   subnet_id = "subnet-048deb39d7ed346d6"
-  availability_zone = "eu-north-1b"
+  availability_zone = "eu-north-1a"
 
   # User data
   user_data = <<-EOF
