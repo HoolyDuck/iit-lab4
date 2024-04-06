@@ -24,7 +24,7 @@ resource "aws_route" "prod__to_internet" {
 
 resource "aws_subnet" "prod" {
   vpc_id = aws_vpc.prod.id
-  availability_zone = "eu-north-1a"
+  availability_zone = "eu-north-1b"
   cidr_block = "10.0.0.0/18"
   map_public_ip_on_launch = true
   depends_on = [aws_internet_gateway.prod]
