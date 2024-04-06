@@ -17,12 +17,6 @@ variable "aws_secret_key" {
   sensitive = true
 }
 
-provider "aws" {
-  region = "eu-north-1"
-  access_key = var.aws_access_key
-  secret_key = var.aws_secret_key
-}
-
 resource "tls_private_key" "rsa_4096-terraform" {
   algorithm = "RSA"
   rsa_bits  = 4096
@@ -62,8 +56,14 @@ services:
 EOF
 }
 
-resource "aws_security_group" "group" {
-  name_prefix = "group"
+provider "aws" {
+  region = "eu-north-1"
+  access_key = var.aws_access_key
+  secret_key = var.aws_secret_key
+}
+
+resource "aws_security_group" "vpc-web" {
+  name_prefix = "vpc-web"
 
   ingress {
     from_port   = 80
@@ -99,10 +99,8 @@ resource "aws_instance" "iit6" {
   instance_type = "t3.micro"
   key_name = aws_key_pair.key_pair.key_name
     vpc_security_group_ids = [
-    aws_security_group.group.id,
+    aws_security_group.vpc-web.id
   ]
-  subnet_id = "subnet-048deb39d7ed346d6"
-  availability_zone = "eu-north-1a"
 
   # User data
   user_data = <<-EOF
