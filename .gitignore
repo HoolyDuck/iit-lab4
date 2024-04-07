@@ -1,1 +1,7 @@
 node_modules/
+terraform.tfvars
+.terraform/
+.terraform.lock.hcl
+terraform_ec2
+terraform.tfstate
+terraform.tfstate.backup

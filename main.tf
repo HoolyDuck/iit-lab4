@@ -62,60 +62,55 @@ provider "aws" {
   secret_key = var.aws_secret_key
 }
 
-resource "aws_security_group" "vpc-web" {
-  name_prefix = "vpc-web"
+resource "aws_security_group" "http_server" {
+  name = "http_server"
+  vpc_id = "vpc-0cb5090078bee29d7"
+}
 
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+resource "aws_vpc_security_group_ingress_rule" "http_server_http_rule" {
+  security_group_id = aws_security_group.http_server.id
+  cidr_ipv4 = "0.0.0.0/0"
+  # from_port = 80
+  # to_port = 80
+  ip_protocol = "-1"
+}
 
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+# resource "aws_vpc_security_group_ingress_rule" "http_server_ssh_rule" {
+#     security_group_id = aws_security_group.http_server.id
+#   cidr_ipv4 = "0.0.0.0/0"
+#   from_port = 22
+#   to_port = 22
+#   ip_protocol = "tcp"
+# }
 
-  ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+resource "aws_vpc_security_group_egress_rule" "http_server_outer_rule" {
+  security_group_id = aws_security_group.http_server.id
+  cidr_ipv4 = "0.0.0.0/0"
+  ip_protocol = "-1"
 }
 
 resource "aws_instance" "iit6" {
   ami           = var.ami
   instance_type = "t3.micro"
   key_name = aws_key_pair.key_pair.key_name
-    vpc_security_group_ids = [
-    aws_security_group.vpc-web.id
+  vpc_security_group_ids = [
+    aws_security_group.http_server.id,
   ]
 
   # User data
   user_data = <<-EOF
               #!/bin/bash
-              yum install -y docker
-              systemctl enable docker
-              systemctl start docker
-              sudo chown $USER /var/run/docker.sock
-              cat > ./docker-compose.yml <<-TEMPLATE
-              ${var.docker_compose_content}
-              TEMPLATE
-              docker compose up
+              apt update -y
+              apt install -y docker.io
+              docker run -d -p 80:80 danyloberk/lab45
+              docker run -d --name watchtower -v /var/run/docker.sock:/var/run/docker.sock containrrr/watchtower --interval 20 --cleanup
               EOF
 
   tags = {
     Name = "IIT_lab_6"
   }
+}
+
+output "public_ip" {
+  value = aws_instance.iit6.public_ip
 }
